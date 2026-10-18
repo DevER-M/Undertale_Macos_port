@@ -1,4 +1,11 @@
+# Game data + build output (not redistributable / not source)
 Undertale*
-*/*/.DS_Store
-*/.DS_Store
+butterscotch/build*/
+
+# macOS / editor noise
 .DS_Store
+*/.DS_Store
+*/*/.DS_Store
+.vscode/
+.cache/
+*.log
