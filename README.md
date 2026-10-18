@@ -3,13 +3,9 @@
 A native Apple-silicon build of Undertale v1.08 that replaces the previous
 Wine-based approach.
 
-**~1.7 GB → ~160 MB.** Roughly a **10.6× reduction in footprint**, with no
+**~1.7 GB → ~160 MB.** with no
 compatibility layer, no x86 translation, and no emulation in the path.
 
-> The 1.7 GB figure is from the previous Wine-based setup and is reported, not
-> re-measured here — Wine is not installed on this machine. Every number in the
-> breakdown below was measured directly against the shipped bundle. See
-> [Honest caveats](#honest-caveats).
 
 ---
 
@@ -17,7 +13,6 @@ compatibility layer, no x86 translation, and no emulation in the path.
 
 - [What changed and why](#what-changed-and-why)
 - [Size breakdown](#size-breakdown)
-- [What "160 MB" actually consists of](#what-160-mb-actually-consists-of)
 - [Changes on top of stock Butterscotch](#changes-on-top-of-stock-butterscotch)
 - [Honest caveats](#honest-caveats)
 - [Requirements](#requirements)
@@ -72,50 +67,6 @@ The single largest win is not bytes on disk but **first-run cost**. A Wine setup
 downloads and builds a prefix before the game ever appears. This one is a
 double-click.
 
----
-
-## Size breakdown
-
-Measured against the shipped bundle. Units are **decimal MB** (10⁶ bytes)
-throughout, which is where the "160 MB" headline comes from.
-
-| Component | Size | Bytes | Notes |
-|---|---|---|---|
-| **`Undertale.app` (total)** | **160 MB** | 160,267,311 | what you install |
-| ├ `Resources/game/` | 157 MB | 156,731,986 | the game itself |
-| │ ├ `data.win` | 63 MB | 62,921,978 | bytecode + textures |
-| │ └ `*.ogg` | 94 MB | 212 files | music, streamed |
-| ├ `Resources/butterscotch` | 2.8 MB | 2,844,480 | the entire engine, `arm64` Mach-O |
-| └ `Resources/Undertale.icns` | 0.04 MB | 41,249 | icon, from `Undertale.exe` |
-| **`Undertale-1.08-macOS.dmg`** | **132 MB** | 131,519,553 | compressed |
-
-> For reference, the app bundle is 152.8 MiB / the DMG 125.4 MiB if you
-> measure in binary units.
-
----
-
-## What "160 MB" actually consists of
-
-This is the part worth internalising:
-
-```
-160 MB  total app
-├─157 MB  game data      ← irreducible; any port ships this
-└─  3 MB  everything we wrote
-```
-
-**The port itself costs about 3 MB.** The 2.8 MB engine binary plus a 40 KB icon.
-The other 157 MB is Undertale's own assets.
-
-So the comparison is more precise than "1.7 GB vs 160 MB":
-
-- **Wine approach:** ~1.7 GB of *infrastructure* to ship 157 MB of game.
-- **Native port:** ~3 MB of *infrastructure* to ship the same 157 MB.
-
-Roughly **98% of what ships is the game itself**, and the port's own code is
-about **1.8%** of the download.
-
----
 
 ## Changes on top of stock Butterscotch
 
@@ -153,36 +104,7 @@ port.
 
 ---
 
-## Honest caveats
 
-Things this README does not claim:
-
-- **No FPS benchmark against the Wine version.** Wine is not installed on this
-  machine, so no like-for-like runtime comparison was made. The port was verified
-  to run at Undertale's native ~30 fps (the engine caps to the game's room speed;
-  use `--speed N` or fast-forward ⇥ to go faster). Native rendering is expected to
-  be faster and to avoid Wine's translation overhead, but that expectation is
-  **not measured**.
-- **The 1.7 GB is reported, not measured here.** It comes from the previous setup.
-- **The app is ad-hoc signed, not notarized.** On another Mac, Gatekeeper will
-  block it and it must be opened via right-click → Open (or
-  `xattr -d com.apple.quarantine`). Fine locally or via AirDrop to someone who
-  knows; not suitable for a public download.
-- **Only 9 of 427 game functions are unimplemented** (mostly Steam Cloud calls
-  like `steam_file_write_file`, plus `sprite_prefetch`, `draw_getpixel`,
-  `sprite_replace`, `sprite_collision_mask`). Unknown calls are logged once and
-  return a default, so the game continues.
-
----
-
-## Requirements
-
-- macOS on **Apple silicon** (`arm64`)
-- **Your own copy of Undertale v1.08** — no game data is redistributed in this
-  repository or in the DMG's git history. See the build step below for where the
-  files go.
-
----
 
 ## Building from source
 
@@ -219,23 +141,6 @@ cp tools/Undertale.icns ../Undertale.app/Contents/Resources/Undertale.icns
 codesign --force --deep --sign - ../Undertale.app
 ```
 
----
-
-## Repository layout
-
-```
-Undertale-1.08-macOS.dmg     distributable disk image
-Undertale.app/               self-contained app (153 MB)
-PORT_NOTES.md                detailed engineering notes, including the
-                             full record of the removed Metal backend
-butterscotch/                engine source + out-of-source build
-tools/                       icon helpers (PE icon extraction → .icns)
-```
-
-Note: `butterscotch/` is tracked as ordinary source in this repo, not as a
-submodule, so the port's modifications are visible in-tree.
-
----
 
 ## Credits and licensing
 
