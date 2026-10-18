@@ -1,4 +1,4 @@
-# Undertale for macOS — native port
+# Undertale for macOS - without wine
 
 A native Apple-silicon build of Undertale v1.08 that replaces the previous
 Wine-based approach.
@@ -12,12 +12,8 @@ compatibility layer, no x86 translation, and no emulation in the path.
 ## Contents
 
 - [What changed and why](#what-changed-and-why)
-- [Size breakdown](#size-breakdown)
 - [Changes on top of stock Butterscotch](#changes-on-top-of-stock-butterscotch)
-- [Honest caveats](#honest-caveats)
-- [Requirements](#requirements)
 - [Building from source](#building-from-source)
-- [Repository layout](#repository-layout)
 - [Credits and licensing](#credits-and-licensing)
 
 ---
