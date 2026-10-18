@@ -1,0 +1,19 @@
+#!/bin/bash
+# Launcher for the Butterscotch-native Undertale port.
+# The engine resolves the game bundle (data.win + *.ogg) from the directory
+# containing data.win, so we point it straight at Resources/game.
+#
+# Renderer: OpenGL (modern-gl) is the default and the only GPU backend.
+# Any extra arguments ("$@") are forwarded to the engine.
+set -e
+HERE="$(cd "$(dirname "$0")" && pwd)"          # .../Contents/MacOS
+RES="$(cd "$HERE/../Resources" && pwd)"        # .../Contents/Resources
+SAVE="$HOME/Library/Application Support/Undertale (Butterscotch)"
+SHOTS="$SAVE/screenshots"
+mkdir -p "$SAVE" "$SHOTS"
+
+exec "$RES/butterscotch" \
+    "$RES/game/data.win" \
+    --save-folder "$SAVE" \
+    --screenshot "$SHOTS/undertale_%d.png" \
+    "$@"
