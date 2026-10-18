@@ -7,16 +7,41 @@ Wine-based approach.
 compatibility layer, no x86 translation, and no emulation in the path.
 
 
----
+## Building from source
 
-## Contents
+```sh
+export SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
 
-- [What changed and why](#what-changed-and-why)
-- [Changes on top of stock Butterscotch](#changes-on-top-of-stock-butterscotch)
-- [Building from source](#building-from-source)
-- [Credits and licensing](#credits-and-licensing)
+cd butterscotch
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBACKEND=appkit
+cmake --build build -j
+```
 
----
+`SDKROOT` is required on some machines: the Command Line Tools SDK can be newer
+than the installed Xcode linker, so `xcrun` resolves to a `.tbd` that `ld` cannot
+parse. Pointing `SDKROOT` at Xcode's own SDK fixes it.
+
+Then drop the engine into the bundle and sign:
+
+```sh
+cp butterscotch/build/butterscotch ../Undertale.app/Contents/Resources/
+codesign --force --deep --sign - ../Undertale.app
+```
+
+### Supplying the game files
+
+The engine resolves game assets relative to the directory containing `data.win`.
+Put your `data.win` and `*.ogg` files in `Undertale.app/Contents/Resources/game/`.
+
+### Rebuilding the icon
+
+```sh
+cp tools/Undertale.icns ../Undertale.app/Contents/Resources/Undertale.icns
+codesign --force --deep --sign - ../Undertale.app
+```
+
+
+
 
 ## What changed and why
 
@@ -102,49 +127,13 @@ port.
 
 
 
-## Building from source
 
-```sh
-export SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
-
-cd butterscotch
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBACKEND=appkit
-cmake --build build -j
-```
-
-`SDKROOT` is required on some machines: the Command Line Tools SDK can be newer
-than the installed Xcode linker, so `xcrun` resolves to a `.tbd` that `ld` cannot
-parse. Pointing `SDKROOT` at Xcode's own SDK fixes it.
-
-Then drop the engine into the bundle and sign:
-
-```sh
-cp butterscotch/build/butterscotch ../Undertale.app/Contents/Resources/
-codesign --force --deep --sign - ../Undertale.app
-```
-
-### Supplying the game files
-
-The engine resolves game assets relative to the directory containing `data.win`.
-Put your `data.win` and `*.ogg` files in `Undertale.app/Contents/Resources/game/`.
-
-### Rebuilding the icon
-
-```sh
-python3 tools/make_icon.py \
-  "Undertale.v1.08/Undertale/Undertale.exe" tools/Undertale.icns
-cp tools/Undertale.icns ../Undertale.app/Contents/Resources/Undertale.icns
-codesign --force --deep --sign - ../Undertale.app
-```
 
 
 ## Credits and licensing
 
 - Engine: [Butterscotch](https://github.com/ButterscotchRunner/Butterscotch) —
   **AGPL-3.0**.
-- Undertale and its assets are the property of their respective owners. This
-  repository contains **no game data**; `Undertale.app`, `data.win`, and the DMG
-  are all excluded via `.gitignore`. You must supply your own copy of the game.
 
 Because the engine is AGPL-3.0, derivative distributions of this port carry the
 same license obligation.
