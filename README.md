@@ -1,7 +1,7 @@
 # Undertale for macOS - without wine
 
 A native Apple-silicon build of Undertale v1.08 that replaces the previous
-Wine-based approach.
+Wine-based approach.(macos build exists which uses around 170Mb but is intel only)
 
 **~1.7 GB → ~160 MB.** with no
 compatibility layer, no x86 translation, and no emulation in the path.
